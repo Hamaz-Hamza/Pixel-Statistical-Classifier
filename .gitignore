@@ -1,0 +1,22 @@
+# virtual environment
+.venv/
+
+# vscode
+.vscode/
+
+# Environment/secrets
+.env
+.env.*
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+*.whl
+build/
+dist/
+
+# project
+3_single_state_frequency_aggregation.ipynb
+single_state_frequency_aggregation.py
