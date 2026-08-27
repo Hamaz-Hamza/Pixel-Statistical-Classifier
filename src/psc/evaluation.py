@@ -1,13 +1,14 @@
-
+import seaborn as sns
 import numpy as np
+import matplotlib.pyplot as plt
 
 from sklearn.metrics import (
     accuracy_score,
     precision_score,
     recall_score,
     f1_score,
+    confusion_matrix,
 )
-
 
 def evaluate(model, x_test, y_test):
 
@@ -110,3 +111,92 @@ def display_results(results):
         f"{results["overall"]['recall']:>11.2f}%"
         f"{results["overall"]['f1']:>11.2f}%"
     )
+
+def display_normalized_confusion_matrix(model, x_test, y_test):
+    y_pred = model.predict(x_test)
+
+    classes = np.unique(np.concatenate((y_test, y_pred)))
+
+    cm = confusion_matrix(
+        y_test,
+        y_pred,
+        labels=classes
+    )
+
+    # Normalize each row
+    cm_normalized = cm.astype(float) / cm.sum(axis=1, keepdims=True)
+
+    plt.figure(figsize=(10, 8))
+
+    sns.heatmap(
+        cm_normalized,
+        annot=True,
+        fmt=".2f",
+        cmap="Blues",
+        xticklabels=classes,
+        yticklabels=classes
+    )
+
+    plt.xlabel("Predicted Class")
+    plt.ylabel("Actual Class")
+    plt.title("Normalized Confusion Matrix")
+    plt.tight_layout()
+    plt.show()
+
+    return cm_normalized
+
+def visualize_class_distributions(distribution, classes=None, title=""):
+    distribution = np.asarray(distribution)
+
+    rows, cols, n_classes = distribution.shape
+
+    max_value = np.max(distribution)
+
+    normalized = distribution.astype(np.float64) / max_value
+    
+    fig, axes = plt.subplots(
+        1,
+        n_classes,
+        figsize=(3 * n_classes, 3.5),
+        squeeze=False
+    )
+
+    axes = axes[0]
+
+    for class_index, class_label in enumerate(classes):
+
+        axes[class_index].imshow(
+            normalized[:, :, class_index],
+            cmap="gray",
+            vmin=0,
+            vmax=1
+        )
+
+        axes[class_index].set_title(
+            f"Class {class_label}"
+        )
+
+        axes[class_index].axis("off")
+
+    fig.suptitle(
+        f"{title}\nMaximum value: {max_value:g}"
+    )
+
+    plt.tight_layout()
+    plt.show()
+
+def evaluate_on_dataset(dataset, model):
+    from psc.helper_functions.show_image import show_image
+    
+    x_train = dataset.train_images()
+    y_train = dataset.train_labels()
+    x_test = dataset.test_images()
+    y_test = dataset.test_labels()
+
+    show_image(x_train[0])
+
+    model.fit(x_train, y_train)
+    results = evaluate(model, x_test, y_test)
+    display_results(results)
+
+    visualize_class_distributions(model.statistics, model.classes, "")

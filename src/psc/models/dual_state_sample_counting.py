@@ -1,12 +1,12 @@
 # <<< info >>>
 #
-# this model is a simple statistical machine learning model 
-# that stores information about how many times a certain output class appeared over a certain pixel state (background vs foreground)
-# for each pixel in the images in the input training data
-# for predictions, the sum of state-specific sample amounts for each class for each pixel is used
-# and the class with the highest total sum is predicted 
-# this model only works for datasets where image binarization does not significantly affect discernability between classes
-# and assumes that the foreground is represented by bright pixels, whereas the background is represented by background pixels
+# This model is a simple statistical machine learning model that stores information 
+# about how many times a certain output class appeared over a certain pixel state (background vs foreground)
+# for each pixel in the images in the input training data.
+# For predictions, the sum of state-specific sample amounts for each class for each pixel is used
+# and the class with the highest total sum is predicted.
+# This implementation and every future version 
+# assumes that the foreground is represented by bright pixels, whereas the background is represented by black pixels
 
 import numpy as np
 
@@ -17,8 +17,7 @@ class PixelStatisticalClassifier:
         n, rows, cols = x_train.shape
 
         # make a copy of original training data to avoid modifying it
-        # +
-        # binarization
+        # apply binarization
         binarized_images = (x_train > 128).astype(np.uint8)
 
         # find the number of classes and obtain a mapping for class index -> class
@@ -43,7 +42,7 @@ class PixelStatisticalClassifier:
 
     def predict_single(self, sample):
 
-        # binarize the sample
+        # binarization
         binarized_sample = (sample > 128).astype(np.uint8)
 
         # select the class frequencies corresponding to each pixel's
@@ -63,3 +62,39 @@ class PixelStatisticalClassifier:
 
     def predict(self, x_test):
         return [self.predict_single(sample) for sample in x_test]
+
+    def evaluate(self, sample):
+        import matplotlib.pyplot as plt
+
+        # binarization
+        binarized_sample = (sample > 128).astype(np.uint8)
+
+        # select statistics corresponding to the observed
+        # background/foreground state at each pixel
+        selected = np.take_along_axis(
+            self.statistics,
+            binarized_sample[:, :, None, None],
+            axis=3
+        ).squeeze(axis=3)
+
+        # separate background and foreground pixels
+        background_statistics = selected[binarized_sample == 0]
+        foreground_statistics = selected[binarized_sample == 1]
+
+        # average statistics
+        background_average = background_statistics.mean(axis=0)
+        foreground_average = foreground_statistics.mean(axis=0)
+
+        # combine using the same weighting as predict_single()
+        final_statistics = background_average + foreground_average
+
+        # visualize image
+        plt.figure(figsize=(2, 2))
+        plt.imshow(sample, cmap="gray")
+        plt.axis("off")
+        plt.show()
+
+        print("Class                ", np.asarray([f"  {digit}" for digit in range(10)]))
+        print("Background statistics", np.round(background_average, 0))
+        print("Foreground statistics", np.round(foreground_average, 0))
+        print("\nFinal:",self.classes[np.argmax(final_statistics)])

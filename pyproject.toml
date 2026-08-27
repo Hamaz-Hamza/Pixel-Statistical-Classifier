@@ -12,12 +12,13 @@ dependencies = [
     "numpy",
     "matplotlib",
     "opencv-python",
-    "tensorflow",
     "scikit-learn",
+    "seaborn",
 ]
 
 [project.optional-dependencies]
 dev = [
     "jupyter",
     "ipykernel",
+    "mnists",
 ]
