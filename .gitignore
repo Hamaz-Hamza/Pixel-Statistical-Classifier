@@ -18,4 +18,5 @@ build/
 dist/
 
 # project
-datasets/
+*.gz
+report.md
