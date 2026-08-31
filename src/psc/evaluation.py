@@ -186,6 +186,7 @@ def visualize_class_distributions(distribution, classes=None, title=""):
     plt.show()
 
 def evaluate_on_dataset(dataset, model):
+    import time
     from psc.helper_functions.show_image import show_image
     
     x_train = dataset.train_images()
@@ -193,10 +194,26 @@ def evaluate_on_dataset(dataset, model):
     x_test = dataset.test_images()
     y_test = dataset.test_labels()
 
+    print(f"train data size: {len(y_train)} x {x_train.shape[1:]}")
+    print(f"test data size: {len(y_test)} x {x_test.shape[1:]}")
+
+    print("-" * 58)
+
     show_image(x_train[0])
 
+    print("-" * 58)
+
+    start_time = time.perf_counter()
     model.fit(x_train, y_train)
+    training_time = time.perf_counter() - start_time
+
+    start_time = time.perf_counter()
     results = evaluate(model, x_test, y_test)
+    prediction_time = time.perf_counter() - start_time
+
     display_results(results)
 
-    visualize_class_distributions(model.statistics, model.classes, "")
+    print("-" * 58)
+    
+    print(f"Training time:   {training_time:.4f} seconds")
+    print(f"Prediction time: {prediction_time:.4f} seconds")

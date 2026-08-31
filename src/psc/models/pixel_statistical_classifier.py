@@ -31,7 +31,7 @@ class PixelStatisticalClassifier:
             class_map = self.statistics[:, :, class_index]
             l2_norm = np.linalg.norm(class_map)
             
-            # Prevent division by zero if a class map is empty/all zero
+            # prevent division by zero if a class map is empty/all zero
             if l2_norm > 0:
                 self.statistics[:, :, class_index] = class_map / l2_norm
 
@@ -43,13 +43,43 @@ class PixelStatisticalClassifier:
         if sample_l2_norm > 0:
             normalized_sample = normalized_sample / sample_l2_norm
 
-        # Cosine similarity via dot product (since both vectors are unit length)
+        # cosine similarity via dot product (since both vectors are unit length)
         similarities = np.tensordot(normalized_sample, self.statistics, axes=([0, 1], [0, 1]))
 
         return self.classes[np.argmax(similarities)]
 
     def predict(self, x_test):
-        return [self.predict_single(sample) for sample in x_test]
+
+        # normalize pixel values to [0, 1]
+        normalized_samples = x_test.astype(np.float64) / 255.0
+
+        # L2 norm of each image
+        sample_l2_norms = np.linalg.norm(
+            normalized_samples,
+            axis=(1, 2),
+            keepdims=True
+        )
+
+        # L2-normalize each image
+        # avoid division by zero for completely black images
+        nonzero = sample_l2_norms > 0
+
+        normalized_samples = np.divide(
+            normalized_samples,
+            sample_l2_norms,
+            out=np.zeros_like(normalized_samples),
+            where=nonzero
+        )
+
+        # cosine similarity between every sample and every class
+        similarities = np.tensordot(
+            normalized_samples,
+            self.statistics,
+            axes=([1, 2], [0, 1])
+        )
+
+        # select the class with the highest similarity for each sample
+        return self.classes[np.argmax(similarities, axis=1)]
 
     def evaluate(self, sample):
         import matplotlib.pyplot as plt
