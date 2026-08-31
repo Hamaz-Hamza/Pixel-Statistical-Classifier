@@ -30,6 +30,7 @@ Info on each model can be found in the respective model file.
 
 ## Final Results (MNIST DATASET)
 
+### Metrics
 | Class | Accuracy | Precision | Recall | F1 Score |
 |------:|---------:|----------:|-------:|---------:|
 | 0 | 97.89% | 87.08% | 92.14% | 89.54% |
@@ -43,6 +44,17 @@ Info on each model can be found in the respective model file.
 | 8 | 94.82% | 72.18% | 76.18% | 74.13% |
 | 9 | 95.34% | 75.40% | 79.88% | 77.57% |
 | **Overall** | **82.16%** | **82.32%** | **81.85%** | **81.87%** |
+
+### Model Efficiency
+
+| Metric | Value |
+|---|---|
+| CPU | Intel Core i3 10th Gen |
+| GPU | Not used |
+| Training set | 60,000 images |
+| Test set | 10,000 images |
+| Training time | 0.50-1.00 seconds |
+| Prediction time | 0.50-1.00 seconds |
 
 ## Key findings
 
