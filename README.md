@@ -58,29 +58,25 @@ Info on each model can be found in the respective model file.
 
 ## Key findings
 
-### High data efficiency, low performance ceiling
+### Speed vs Accuracy Tradeoff
 
-The final model reaches most of its eventual performance with relatively few training samples, as seen in the final experiment, where performance plateaus at approximately 2000 training samples on the EMNIST digits dataset.
-
-Increasing the training set beyond this point produces little or no improvement. This suggests that the primary limitation is the representational capacity of the pixel-statistical approach rather than insufficient training data.
+On MNIST, the classifier can be trained on all 60,000 training images in approximately 0.5–1 second using only CPU-based computation, while achieving an F1-score of approximately 82%. This approach, when compared with CNN-based approaches, which can require substantially longer GPU-based training to achieve F1-scores above 95%, is highly efficient and low resource consuming and thus more effective in areas where computational efficiency is prioritized over maximum predictive accuracy.
 
 ### Low resource usage
 
-The classifier requires relatively few computational resources compared to modern machine-learning approaches. Its model consists primarily of statistical information derived directly from the training images, without the need for a large number of learned parameters or specialized hardware.
+The simplicity of the model allows it to be trained and stored on limited computational resources. Training primarily consists of accumulating and processing pixel statistics for each class, while prediction involves comparing an input image against the learned class representations.
 
-Training and prediction can therefore be performed using standard CPU-based computation and relatively small amounts of memory. This makes the approach suitable for environments where computational resources are limited.
+Unlike iterative optimization-based models, the classifier does not require back-propagation, gradient descent, or repeated parameter updates and the final model representation is stored as a 2D brightness map per output class meaning that it does not consume much space at all. This allows the model to be trained and evaluated quickly, even on large datasets.
 
-### Fast training and prediction
-
-The simplicity of the model also results in fast training and prediction. Training primarily consists of accumulating and processing pixel statistics for each class, while prediction involves comparing an input image against the learned class representations.
-
-Unlike iterative optimization-based models, the classifier does not require backpropagation, gradient descent, or repeated parameter updates. This allows the model to be trained and evaluated quickly, particularly on smaller datasets.
+This means that the model can be very useful on computers having lower storage, memory and computational resources.
 
 ### Weak predictive power compared to state-of-the-art models
 
 Despite its data efficiency and low computational requirements, the classifier has substantially lower predictive performance than modern image-classification methods.
 
 Its reliance on pixel-level statistics limits its ability to capture complex spatial relationships and higher-level visual features. Consequently, increasing the amount of training data provides little improvement once the statistical representation has stabilized.
+
+Additionally, as seen in visualizations done throughout the experiments, the model learns only a single representation of an output class, even when there may be multiple (as in the case of digits 2 and 4 written differently in different samples).
 
 The final accuracy should therefore not be interpreted as competitive with state-of-the-art image-classification models. Instead, the results demonstrate the amount of predictive information that can be extracted from a comparatively simple statistical representation, while also illustrating its fundamental limitations.
 
